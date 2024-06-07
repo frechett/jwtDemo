@@ -1,0 +1,103 @@
+https://blog.softtek.com/en/token-based-api-authentication-with-spring-and-jwt
+https://github.com/sebascastillo89/jwtDemo
+https://github.com/frechett/jwtDemo
+
+
+cd ~/git
+git clone https://github.com/sebascastillo89/jwtDemo.git
+cd ~/git/jwtDemo
+
+mvn spring-boot:run
+
+mvn package
+java -jar target/jwtDemo-0.0.1-SNAPSHOT.jar
+
+https://www.getpostman.com/
+
+POST http://localhost:8080/user?user=sebas&password=pwd
+{
+    "user": "sebas,sebas",
+    "pwd": null,
+    "token": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJzb2Z0dGVrSldUIiwic3ViIjoic2ViYXMsc2ViYXMiLCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiXSwiaWF0IjoxNzE3NjA3NjIxLCJleHAiOjE3MTc2MDgyMjF9.v7zxV1T5T6MrGgRmPZmXeUpmEVG9NpmPizkK666c0mrgUqq961MdkwJuVR6ilQ0g8EfIYHrOQbqkfniJgi5oQg"
+}
+
+GET http://localhost:8080/hello
+Authorization
+Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJzb2Z0dGVrSldUIiwic3ViIjoic2ViYXMsc2ViYXMiLCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiXSwiaWF0IjoxNzE3NjA3NjIxLCJleHAiOjE3MTc2MDgyMjF9.v7zxV1T5T6MrGgRmPZmXeUpmEVG9NpmPizkK666c0mrgUqq961MdkwJuVR6ilQ0g8EfIYHrOQbqkfniJgi5oQg
+
+
+# JWT
+import requests
+
+response = requests.get("http://localhost:8080/hello")
+print(response.status_code)
+403
+data = {"user": "sebas", "password": "pwd"} 
+response = requests.post("http://localhost:8080/user", data)
+print(response.status_code)
+200
+token = response.json().get('token')
+print(token)
+Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJzb2Z0dGVrSldUIiwic3ViIjoic2ViYXMiLCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiXSwiaWF0IjoxNzE3NjA4MTM5LCJleHAiOjE3MTc2MDg3Mzl9.vAn5kKH6BUE8clfbv4KLbWy4tOoc_rdKMGiZjCaySHbfpRQdQcDDqRd3qxNly7qrmpK2qZ6mxUs2BfmJZwAZKw
+headers = {'Authorization': token}
+response = requests.get("http://localhost:8080/hello", headers=headers)
+print(response.status_code)
+200
+print(response.text)
+Hello World!!
+
+
+# basic auth
+import requests
+username = "user"
+password = "06bf0da2-fda8-41d7-9fd8-09b5ba7b72ee"
+response = requests.get("http://localhost:8080/hello", auth=(username, password))
+
+
+spring-boot-starter-security
+spring-boot-starter-web
+spring-boot-starter-test
+spring-security-test
+
+jjwt	io.jsonwebtoken
+json
+jakarta.xml.bind-api
+jaxb-runtime
+
+
+# HTTPS
+application.yaml
+#JWT token validity in seconds
+jwt:
+  secret: secret
+  token:
+    validity: 10000
+server:
+  ssl:
+    key-store: classpath:springboot.p12
+    key-store-password: changeit
+    key-store-type: pkcs12
+    key-alias: springboot
+    key-password: changeit
+  port: 8443
+spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+
+
+cd src/main/resources
+keytool -genkeypair -alias springboot -keyalg RSA -keypass changeit -storepass changeit -keysize 4096 -storetype PKCS12 -keystore springboot.p12 -dname "CN=Kevin Frechette, OU=SNW, O=ISTI, L=Saratoga Springs, ST=NY C=US" -validity 36525
+keytool -list -v -keystore springboot.p12
+keytool -export -keystore springboot.p12 -alias springboot -file myCertificate.crt
+
+XXX export REQUESTS_CA_BUNDLE=/Users/kfrechette/gitTest/jwtDemo/src/main/resources/springboot.pem
+
+python
+import certifi
+print(certifi.where())
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/certifi/cacert.pem
+
+import requests
+data = {"user": "sebas", "password": "pwd"} 
+response = requests.post("https://localhost:8443/user", data, verify=False)
+print(response.status_code)
