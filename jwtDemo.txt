@@ -101,3 +101,13 @@ import requests
 data = {"user": "sebas", "password": "pwd"} 
 response = requests.post("https://localhost:8443/user", data, verify=False)
 print(response.status_code)
+200
+token = response.json().get('token')
+print(token)
+Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJzb2Z0dGVrSldUIiwic3ViIjoic2ViYXMiLCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiXSwiaWF0IjoxNzE3NzkzNzczLCJleHAiOjE3MTc3OTQzNzN9.UnXT-BjAClD3e13VOtbkgKe4ehqn4CZgRnBGfYjhMEi7GMlxj70pk4xQ_19TMgDxHIL9ej1WoxknUK3AR2Tkig
+headers = {'Authorization': token}
+response = requests.get("https://localhost:8443/hello", headers=headers, verify=False)
+print(response.status_code)
+200
+print(response.text)
+Hello World!!
